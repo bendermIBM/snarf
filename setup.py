@@ -1,8 +1,8 @@
 from distutils.core import setup
 
 setup(
-    name='snarf',
-    packages=['snarf'],
+    name='snarf_libvirt',
+    packages=['snarf_libvirt'],
     version='0.1',
     description='A small libvirt helper package',
     author='Max Bender',
