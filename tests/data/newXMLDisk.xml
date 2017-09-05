@@ -1,0 +1,64 @@
+<domain type='kvm' id='36'>
+  <name>kvmFrontEnd</name>
+  <uuid>5ee1216f-819d-4450-83a1-3a90d28f6bbc</uuid>
+  <description>Guest-System Ubuntu</description>
+  <memory unit='KiB'>1000448</memory>
+  <currentMemory unit='KiB'>1000000</currentMemory>
+  <vcpu placement='static'>1</vcpu>
+  <iothreads>1</iothreads>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <os>
+    <type arch='s390x' machine='s390-ccw-virtio-2.6'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>preserve</on_crash>
+  <devices>
+    <emulator>/usr/bin/qemu-system-s390x</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' cache='none' io='native' iothread='1'/>
+      <source file='/kvmvols/max/kvmServerFrontEnd/kvmServerFrontEnd.img'/>
+      <backingStore/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0000'/>
+    </disk>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' cache='none' io='native' iothread='1'/>
+      <source file='/kvmvols/max/kvmServerFrontEnd/kvmServerFrontEnd2.img'/>
+      <backingStore/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0000'/>
+    </disk>
+    <interface type='bridge'>
+      <mac address='52:54:00:f4:1e:67'/>
+      <source bridge='ovswitch1'/>
+      <vlan>
+        <tag id='1284'/>
+      </vlan>
+      <virtualport type='openvswitch'>
+        <parameters interfaceid='14e5c7e7-b5da-4c56-8ca9-2ba345ad5c89'/>
+      </virtualport>
+      <target dev='vnet8'/>
+      <model type='virtio'/>
+      <alias name='net0'/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0001'/>
+    </interface>
+    <console type='pty' tty='/dev/pts/10'>
+      <source path='/dev/pts/10'/>
+      <target type='sclp' port='0'/>
+      <alias name='console0'/>
+    </console>
+    <memballoon model='virtio'>
+      <alias name='balloon0'/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0002'/>
+    </memballoon>
+    <panic model='s390'/>
+  </devices>
+  <seclabel type='none' model='apparmor'/>
+</domain>
