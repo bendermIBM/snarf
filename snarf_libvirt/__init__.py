@@ -188,7 +188,7 @@ class KVMLibvirt:
             logger.info("There is a disk still in currentDiskImages not found in serverXML. currentDiskImages : %r" % (currentDiskImages))
             return True
 
-        logger.info("No new network elements were found")
+        logger.info("No new disks elements were found")
         return False
 
     @staticmethod
@@ -221,69 +221,3 @@ class KVMLibvirt:
 
         logger.info("No new network elements were found")
         return False
-
-    # def guestHasUpdates(self, serverDict, conn=None):
-    #     """Check whether or not a guest has updates based off serverDict"""
-    #     state, maxmem, mem, cpus, cput = self.getGuestInfo(
-    #         serverDict['name'], conn)
-    #
-    #     if serverDict['memory'] != mem:
-    #         return True
-    #
-    #     if serverDict['numCPUs'] != cpus:
-    #         return True
-    #
-    #     return False
-    #
-    # def getGuestMaxMem(self, guestName):
-    #     state, maxmem, mem, cpus, cput = self.getGuestInfo(guestName)
-    #     return maxmem
-    #
-    # def getGuestInfo(self, guestName, conn=None):
-    #     """Get hardware info for a guest """
-    #     if conn is None:
-    #         with self.openConnection() as conn:
-    #
-    #             if conn is not None:
-    #                 guest = conn.lookupByName(guestName)
-    #
-    #                 if guest is not None:
-    #                     return guest.info()
-    #                 else:
-    #                     return None
-    #
-    #     else:
-    #         guest = conn.lookupByName(guestName)
-    #
-    #         if guest is not None:
-    #             return guest.info()
-    #         else:
-    #             return None
-    #
-    #     return None
-    #
-    # def updateGuest(self, serverDict):
-    #     """Update a single guest's resources based off serverDict"""
-    #     error = False
-    #     message = None
-    #     guestName = serverDict['name']
-    #     with self.openConnection() as conn:
-    #         if self.guestHasUpdates(serverDict, conn):
-    #             guest = conn.lookupByName(guestName)
-    #             print('Guest MAX MEMORY %r' % guest.maxMemory())
-    #             print('Guest MAX CPU %r' % guest.maxVcpus())
-    #             if guest.maxMemory() >= serverDict['memory']:
-    #                 guest.setMemory(serverDict['memory'])
-    #             else:
-    #                 error = True
-    #                 message = 'cannot set memory higher than max memory'
-    #             if guest.maxVcpus() >= serverDict['numCPUs']:
-    #                 guest.setVcpus(serverDict['numCPUs'])
-    #             else:
-    #                 error = True
-    #                 message = 'requested vcpus is greater than max allowable vcpus for the domain'
-    #
-    #     if error:
-    #         return False, message
-    #     else:
-    #         return True, 'success'
