@@ -2,8 +2,8 @@
   <name>kvmFrontEnd</name>
   <uuid>5ee1216f-819d-4450-83a1-3a90d28f6bbc</uuid>
   <description>Guest-System Ubuntu</description>
-  <memory unit='KiB'>1000000</memory>
-  <currentMemory unit='KiB'>1000000</currentMemory>
+  <memory unit='KiB'>2000000</memory>
+  <currentMemory unit='KiB'>2000000</currentMemory>
   <vcpu placement='static'>1</vcpu>
   <iothreads>1</iothreads>
   <resource>

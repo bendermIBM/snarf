@@ -6,7 +6,7 @@ from pprint import pformat
 import libvirt
 from lxml import etree
 
-from .xmlHelpers import getDiskImageURLs, getNetworkMacAddr, xml_compare
+from .xmlHelpers import getDiskImageURLs, getNetworkMacAddr, xml_compare, getMemory, getCPU
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -40,6 +40,7 @@ class KVMLibvirt:
         try:
             connString = 'qemu+ssh://%s@%s/system?socket=/var/run/libvirt/libvirt-sock' % \
                 (self.user, self.connURL)
+            logger.debug("Attempting connection at %s" % (connString))
             conn = libvirt.open(connString)
 
             if conn is not None:
@@ -51,7 +52,7 @@ class KVMLibvirt:
                 yield None
         except libvirt.libvirtError as err:
             logger.error("Libvirt Error while trying to connect : %r" % (err))
-            raise Exception('Libvirt Error %s' % err)
+            raise err
             yield None
         finally:
             if conn is not None:
@@ -77,8 +78,7 @@ class KVMLibvirt:
                     domain = conn.lookupByName(domainName)
 
                     if domain is not None:
-                        logger.debug("Found domain on %s" %
-                                     (self.connURLBrief))
+                        logger.debug("Found domain on %s" % (self.connURLBrief))
 
                         domainXMLRaw = domain.XMLDesc(0)
 
@@ -92,6 +92,7 @@ class KVMLibvirt:
                             logger.debug('XML Config matches')
                         else:
                             logger.debug('XML Config does not match')
+                            return True
                     else:
                         logger.warning('Unable to find domain %s on %s' %
                                        (domainName, self.connURLBrief))
@@ -221,3 +222,31 @@ class KVMLibvirt:
 
         logger.info("No new network elements were found")
         return False
+
+    @staticmethod
+    def compareMemory(currentXML, newXML):
+        currentMem, currentUnit = getMemory(currentXML)
+        newMem, newUnit = getMemory(newXML)
+
+        if currentMem and newMem:
+            if currentUnit == newUnit:
+                return not(currentMem == newMem)
+            else:
+                logger.warning('Memory units were different : current(%s) new(%s)' %
+                               (currentUnit, newUnit))
+        else:
+            logger.error('Unable to find memory elements to compare')
+
+        return True
+
+    @staticmethod
+    def compareCPU(currentXML, newXML):
+        currentCPU = getCPU(currentXML)
+        newCPU = getCPU(newXML)
+
+        if currentCPU and newCPU:
+            return not(currentCPU == newCPU)
+        else:
+            logger.error("Unable to find CPU elements to compare")
+
+        return True

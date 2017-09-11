@@ -74,3 +74,48 @@ class KVMLibvirtTest(unittest.TestCase):
         newDiskXML = newDiskXML.getroot()
 
         self.assertTrue(self.kvmlibvirt.compareNetworkMac(oldDiskXML, newDiskXML))
+
+    def testSameMemoryCompare(self):
+        oldDiskXML = etree.parse(os.path.join(dir_path, 'data', 'oldXMLDisk.xml'))
+        oldDiskXML = oldDiskXML.getroot()
+
+        newDiskXML = etree.parse(os.path.join(dir_path, 'data', 'newXMLDisk.xml'))
+        newDiskXML = newDiskXML.getroot()
+
+        self.assertFalse(self.kvmlibvirt.compareMemory(oldDiskXML, newDiskXML))
+
+    def testDifferentMemoryCompare(self):
+        oldDiskXML = etree.parse(os.path.join(dir_path, 'data', 'oldXMLDisk.xml'))
+        oldDiskXML = oldDiskXML.getroot()
+
+        newDiskXML = etree.parse(os.path.join(dir_path, 'data', 'memChange.xml'))
+        newDiskXML = newDiskXML.getroot()
+
+        self.assertTrue(self.kvmlibvirt.compareMemory(oldDiskXML, newDiskXML))
+
+    def testDifferentUnitMemoryCompare(self):
+        oldDiskXML = etree.parse(os.path.join(dir_path, 'data', 'oldXMLDisk.xml'))
+        oldDiskXML = oldDiskXML.getroot()
+
+        newDiskXML = etree.parse(os.path.join(dir_path, 'data', 'memGB.xml'))
+        newDiskXML = newDiskXML.getroot()
+
+        self.assertTrue(self.kvmlibvirt.compareMemory(oldDiskXML, newDiskXML))
+
+    def testSameCPUCompare(self):
+        oldDiskXML = etree.parse(os.path.join(dir_path, 'data', 'oldXMLDisk.xml'))
+        oldDiskXML = oldDiskXML.getroot()
+
+        newDiskXML = etree.parse(os.path.join(dir_path, 'data', 'memGB.xml'))
+        newDiskXML = newDiskXML.getroot()
+
+        self.assertFalse(self.kvmlibvirt.compareCPU(oldDiskXML, newDiskXML))
+
+    def testDiffCPUCompare(self):
+        oldDiskXML = etree.parse(os.path.join(dir_path, 'data', 'oldXMLDisk.xml'))
+        oldDiskXML = oldDiskXML.getroot()
+
+        newDiskXML = etree.parse(os.path.join(dir_path, 'data', 'cpuChange.xml'))
+        newDiskXML = newDiskXML.getroot()
+
+        self.assertTrue(self.kvmlibvirt.compareCPU(oldDiskXML, newDiskXML))

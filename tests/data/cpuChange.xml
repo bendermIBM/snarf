@@ -4,7 +4,7 @@
   <description>Guest-System Ubuntu</description>
   <memory unit='KiB'>1000000</memory>
   <currentMemory unit='KiB'>1000000</currentMemory>
-  <vcpu placement='static'>1</vcpu>
+  <vcpu placement='static'>2</vcpu>
   <iothreads>1</iothreads>
   <resource>
     <partition>/machine</partition>

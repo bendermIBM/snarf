@@ -1,3 +1,6 @@
+from bitmath import MiB, GiB, TiB
+
+
 def xml_compare(x1, x2, reporter=None):
     if x1.tag != x2.tag:
         if reporter:
@@ -100,3 +103,27 @@ def getNetworkMacAddr(devicesElement):
             macAddress.append("#####")
 
     return macAddress
+
+
+def getMemory(serverElement):
+    from . import logger
+
+    memoryElement = serverElement.find('memory')
+
+    if memoryElement is None:
+        logger.error('Unable to find memory element in server definition')
+        return None
+
+    return int(memoryElement.text), memoryElement.get('unit')
+
+
+def getCPU(serverElement):
+    from . import logger
+
+    cpuElement = serverElement.find('vcpu')
+
+    if cpuElement is None:
+        logger.error('Unable to find CPU element in server definition')
+        return None
+
+    return int(cpuElement.text)

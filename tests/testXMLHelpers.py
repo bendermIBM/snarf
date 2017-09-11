@@ -3,7 +3,7 @@ import unittest
 
 from lxml import etree
 
-from snarf_libvirt.xmlHelpers import getDiskImageURLs, getNetworkMacAddr
+from snarf_libvirt.xmlHelpers import getDiskImageURLs, getNetworkMacAddr, getMemory, getCPU
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -119,3 +119,22 @@ class XMLHelpersTest(unittest.TestCase):
         expectedMacAddresses = ['#####', '52:54:00:f4:1e:67']
 
         self.assertEqual(getNetworkMacAddr(deviceElement), expectedMacAddresses)
+
+    def testGetMemory(self):
+        xmlPath = os.path.join(dir_path, 'data', 'oldXMLDisk.xml')
+        diskXML = etree.parse(xmlPath)
+        diskXML = diskXML.getroot()
+
+        mem, unit = getMemory(diskXML)
+
+        self.assertEqual(mem, 1000000)
+        self.assertEqual(unit, 'KiB')
+
+    def testGetCPU(self):
+        xmlPath = os.path.join(dir_path, 'data', 'oldXMLDisk.xml')
+        diskXML = etree.parse(xmlPath)
+        diskXML = diskXML.getroot()
+
+        expectedCPU = 1
+
+        self.assertEqual(getCPU(diskXML), expectedCPU)
