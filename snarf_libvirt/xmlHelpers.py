@@ -1,6 +1,3 @@
-from bitmath import MiB, GiB, TiB
-
-
 def xml_compare(x1, x2, reporter=None):
     if x1.tag != x2.tag:
         if reporter:
