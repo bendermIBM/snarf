@@ -43,15 +43,15 @@ class KVMLibvirt:
             conn = libvirt.open(connString)
 
             if conn is not None:
-                logger.debug(
-                    "Successfully opened connection to conn %r" % (conn))
+                logger.debug("Successfully opened connection to conn %r" % (conn))
                 yield conn
             else:
-                logger.warning(
-                    "Unable to establish connection to libvirt at %s" % (connString))
+                logger.warning("Unable to establish connection to libvirt at %s" % (connString))
+                raise Exception('Unable to connect to KVM Host')
                 yield None
         except libvirt.libvirtError as err:
             logger.error("Libvirt Error while trying to connect : %r" % (err))
+            raise Exception('Libvirt Error %s' % err)
             yield None
         finally:
             if conn is not None:
