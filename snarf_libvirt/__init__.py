@@ -167,6 +167,75 @@ class KVMLibvirt:
         logger.info("No new network elements were found")
         return False
 
+    def hasMemoryChanges(self, serverXMLPath):
+        # First lets get the name of the server we are looking at
+        serverETree = etree.parse(serverXMLPath)
+
+        root = serverETree.getroot()
+
+        domainName = root.find('name').text
+
+        logger.debug("Trying to find server name")
+        logger.debug('domainName : %s' % (domainName))
+
+        if domainName:
+            with self.openConnection() as conn:
+                if conn:
+                    domain = conn.lookupByName(domainName)
+
+                    if domain:
+                        logger.debug("Found domain %s on %s" % (domainName, self.connURLBrief))
+
+                        domXMLRaw = domain.XMLDesc(0)
+                        domXML = etree.fromstring(domXMLRaw)
+
+                        return self.compareCPU(domXML, root)
+
+                    else:
+                        logger.error("Unable to locate domain %s on host %s" % (domainName, self.connURLBrief))
+                else:
+                    logger.error("Unable to connect to Host at %s" % (self.connURL))
+        else:
+            logger.error("Unable to find a domain name in serverXML")
+
+        logger.info("No CPU changes")
+        return False
+
+    def hasCPUChange(self, serverXMLPath):
+        # First lets get the name of the server we are looking at
+        serverETree = etree.parse(serverXMLPath)
+
+        root = serverETree.getroot()
+
+        domainName = root.find('name').text
+
+        logger.debug("Trying to find server name")
+        logger.debug('domainName : %s' % (domainName))
+
+        if domainName:
+            with self.openConnection() as conn:
+                if conn:
+                    domain = conn.lookupByName(domainName)
+
+                    if domain:
+                        logger.debug("Found domain %s on %s" % (domainName, self.connURLBrief))
+
+                        domXMLRaw = domain.XMLDesc(0)
+                        domXML = etree.fromstring(domXMLRaw)
+
+                        return self.compareMemory(domXML, root)
+
+                    else:
+                        logger.error("Unable to locate domain %s on host %s" % (domainName, self.connURLBrief))
+                else:
+                    logger.error("Unable to connect to Host at %s" % (self.connURL))
+        else:
+            logger.error("Unable to find a domain name in serverXML")
+
+        logger.info("No memory changes")
+        return False
+
+
     @staticmethod
     def compareDiskImages(currentXML, newXML):
         currentDiskImages = []
