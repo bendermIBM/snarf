@@ -6,7 +6,8 @@ from pprint import pformat
 import libvirt
 from lxml import etree
 
-from .xmlHelpers import getDiskImageURLs, getNetworkMacAddr, xml_compare, getMemory, getCPU
+from .xmlHelpers import (getCPU, getDiskImageURLs, getMemory,
+                         getNetworkMacAddr, xml_compare)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -27,7 +28,10 @@ class KVMLibvirt:
 
     @property
     def connURLBrief(self):
-        return self.connURL[:15] + ' ...'
+        if self.connURL:
+            return self.connURL[:15] + ' ...'
+
+        return None
 
     @contextmanager
     def openConnection(self):
@@ -59,6 +63,7 @@ class KVMLibvirt:
                 conn.close()
 
     def hasXMLDiff(self, serverXMLPath):
+        '''Determines if new XML is different from XML on domain'''
         # First lets get the name of the server we are looking at
         serverETree = etree.parse(serverXMLPath)
 
@@ -102,6 +107,7 @@ class KVMLibvirt:
         return False
 
     def hasDiskChanges(self, serverXMLPath):
+        '''Determines if there is a Disk Change between host and new XML'''
         # First lets get the name of the server we are looking at
         serverETree = etree.parse(serverXMLPath)
 
@@ -134,6 +140,7 @@ class KVMLibvirt:
         return False
 
     def hasNetworkChanges(self, serverXMLPath):
+        '''Determines if there is a Network change between host and current XML'''
         # First lets get the name of the server we are looking at
         serverETree = etree.parse(serverXMLPath)
 
@@ -168,6 +175,7 @@ class KVMLibvirt:
         return False
 
     def hasMemoryChanges(self, serverXMLPath):
+        '''Determines if there is a Memory Change between host and new XML'''
         # First lets get the name of the server we are looking at
         serverETree = etree.parse(serverXMLPath)
 
@@ -202,6 +210,7 @@ class KVMLibvirt:
         return False
 
     def hasCPUChange(self, serverXMLPath):
+        '''Determines if there is a CPU change between host and new XML'''
         # First lets get the name of the server we are looking at
         serverETree = etree.parse(serverXMLPath)
 
@@ -235,9 +244,43 @@ class KVMLibvirt:
         logger.info("No memory changes")
         return False
 
+    def setMemory(self, domainName, memory):
+        '''Set the memory of domain'''
+        with self.openConnection() as conn:
+            domain = conn.lookupByName(domainName)
+
+            if domain:
+                domain.setMemory(memory)
+            else:
+                logger.error('Unable to find domain %s on %s' % (domainName, self.connURLBrief))
+
+    def setCPU(self, domainName, numCPU):
+        '''Set the number of vCPUs for a domain'''
+        with self.openConnection() as conn:
+            domain = conn.lookupByName(domainName)
+
+            if domain:
+                domain.setVcpus(numCPU)
+            else:
+                logger.error('Unable to find domain %s on %s' % (domainName, self.connURLBrief))
+
+    def getMaxMemory(self, domainName):
+        '''Get the memory from a domain'''
+        with self.openConnection() as conn:
+            domain = conn.lookupByName(domainName)
+
+            if domain:
+                maxMem = domain.maxMemory()
+                logger.debug('Found Domain %s ~ Max mem - %r' % (domainName, maxMem))
+                return maxMem
+            else:
+                logger.error('Unable to find domain %s on %s' % (domainName, self.connURLBrief))
+
+        return None
 
     @staticmethod
     def compareDiskImages(currentXML, newXML):
+        '''Compare Disk Images for old and new XML'''
         currentDiskImages = []
         newDiskImages = []
         devicesElement = currentXML.find('devices')
@@ -263,6 +306,7 @@ class KVMLibvirt:
 
     @staticmethod
     def compareNetworkMac(currentXML, newXML):
+        '''Compare MAC Addresses for old and current XML'''
         currentMacAddresses = getNetworkMacAddr(currentXML.find('devices'))
         newMacAddresses = getNetworkMacAddr(newXML.find('devices'))
 
@@ -294,6 +338,7 @@ class KVMLibvirt:
 
     @staticmethod
     def compareMemory(currentXML, newXML):
+        '''Compare Memory for new and current XML'''
         currentMem, currentUnit = getMemory(currentXML)
         newMem, newUnit = getMemory(newXML)
 
@@ -310,6 +355,7 @@ class KVMLibvirt:
 
     @staticmethod
     def compareCPU(currentXML, newXML):
+        '''Compare CPUs from old and new XML'''
         currentCPU = getCPU(currentXML)
         newCPU = getCPU(newXML)
 
